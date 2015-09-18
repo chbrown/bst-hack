@@ -253,6 +253,7 @@ FUNCTION {format.authors}
     { "" }
     { author format.names }
   if$
+  "<author>" swap$ * "</author>" *
 }
 
 FUNCTION {format.editors}
@@ -265,6 +266,7 @@ FUNCTION {format.editors}
       if$
     }
   if$
+  "<editor>" swap$ * "</editor>" *
 }
 
 FUNCTION {format.title}
@@ -274,6 +276,7 @@ FUNCTION {format.title}
     { title "t" change.case$ }
 
   if$
+  "<title>" swap$ * "</title>" *
 }
 
 FUNCTION {n.dashify}
@@ -348,6 +351,7 @@ FUNCTION {format.bvolume}
       "volume and number" number either.or.check
     }
   if$
+  "<volume>" swap$ * "</volume>" *
 }
 
 FUNCTION {format.number.series}
@@ -368,6 +372,7 @@ FUNCTION {format.number.series}
     }
     { "" }
   if$
+  "<numberseries>" swap$ * "</numberseries>" *
 }
 
 FUNCTION {format.edition}
@@ -379,6 +384,7 @@ FUNCTION {format.edition}
       if$
     }
   if$
+  "<edition>" swap$ * "</edition>" *
 }
 
 INTEGERS { multiresult }
@@ -412,10 +418,12 @@ FUNCTION {format.pages}
       if$
     }
   if$
+  "<pages>" swap$ * "</pages>" *
 }
 
 FUNCTION {format.year.label}
 { year extra.label *
+  "<date>" swap$ * "</date>" *
 }
 
 FUNCTION {format.vol.num.pages}
@@ -464,6 +472,7 @@ FUNCTION {format.in.ed.booktitle}
       if$
     }
   if$
+  "<booktitle>" swap$ * "</booktitle>" *
 }
 
 FUNCTION {empty.misc.check}
