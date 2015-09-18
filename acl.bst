@@ -197,6 +197,33 @@ FUNCTION {new.sentence.checkb}
   if$
 }
 
+STRINGS { tag }
+
+% [..., "Chris", "author"]
+FUNCTION {wrap.or.null}
+{ % pop off the tag string into the STRING variable "tag"
+  'tag :=
+  duplicate$ empty$
+    % nvm, the argument we wanted to wrap is null/empty, so don't wrap it
+    { }
+    % ok, at this point we are sure the field is provided, wrap it
+    {
+      tag
+      % [..., "Chris", "author"]
+      "<" swap$ * ">" *
+      % [..., "Chris", "<author>"]
+      swap$ * tag
+      % [..., "<author>Chris", "author"]
+      "</" swap$ * ">" * *
+      % [..., "<author>Chris</author>"] --- done!
+    }
+  if$
+}
+
+% if the top of the stack is "empty" (i.e., the field that is on the top of the
+% stack was not provided in the current entry), pop it (the null value) off the
+% stack and push the empty string on top. otherwise just leave the non-null
+% field on top
 FUNCTION {field.or.null}
 { duplicate$ empty$
     { pop$ "" }
@@ -249,7 +276,7 @@ FUNCTION {format.authors}
     { "" }
     { author format.names }
   if$
-  "<author>" swap$ * "</author>" *
+  "author" wrap.or.null
 }
 
 FUNCTION {format.editors}
@@ -262,7 +289,7 @@ FUNCTION {format.editors}
       if$
     }
   if$
-  "<editor>" swap$ * "</editor>" *
+  "editor" wrap.or.null
 }
 
 FUNCTION {format.title}
@@ -272,7 +299,7 @@ FUNCTION {format.title}
     { title "t" change.case$ }
 
   if$
-  "<title>" swap$ * "</title>" *
+  "title" wrap.or.null
 }
 
 FUNCTION {n.dashify}
@@ -315,6 +342,7 @@ FUNCTION {format.date}
       if$
     }
   if$
+  "month" wrap.or.null
 }
 
 FUNCTION {format.btitle}
@@ -347,13 +375,13 @@ FUNCTION {format.bvolume}
       "volume and number" number either.or.check
     }
   if$
-  "<volume>" swap$ * "</volume>" *
+  "volume" wrap.or.null
 }
 
 FUNCTION {format.number.series}
 { volume empty$
     { number empty$
-        { series field.or.null }
+        { series field.or.null } % has series but no number
         { output.state mid.sentence =
             { "number" }
             { "Number" }
@@ -368,7 +396,7 @@ FUNCTION {format.number.series}
     }
     { "" }
   if$
-  "<numberseries>" swap$ * "</numberseries>" *
+  "numberseries" wrap.or.null
 }
 
 FUNCTION {format.edition}
@@ -380,7 +408,7 @@ FUNCTION {format.edition}
       if$
     }
   if$
-  "<edition>" swap$ * "</edition>" *
+  "edition" wrap.or.null
 }
 
 INTEGERS { multiresult }
@@ -414,12 +442,12 @@ FUNCTION {format.pages}
       if$
     }
   if$
-  "<pages>" swap$ * "</pages>" *
+  "pages" wrap.or.null
 }
 
 FUNCTION {format.year.label}
 { year extra.label *
-  "<date>" swap$ * "</date>" *
+  "date" wrap.or.null
 }
 
 FUNCTION {format.vol.num.pages}
@@ -441,6 +469,14 @@ FUNCTION {format.vol.num.pages}
       if$
     }
   if$
+}
+
+FUNCTION {format.publisher}
+{ publisher "publisher" wrap.or.null
+}
+
+FUNCTION {format.address}
+{ address "location" wrap.or.null
 }
 
 FUNCTION {format.chapter.pages}
@@ -468,7 +504,7 @@ FUNCTION {format.in.ed.booktitle}
       if$
     }
   if$
-  "<booktitle>" swap$ * "</booktitle>" *
+  "booktitle" wrap.or.null
 }
 
 FUNCTION {empty.misc.check}
@@ -627,8 +663,8 @@ FUNCTION {book}
       new.block
       format.number.series output
       new.sentence
-      publisher "publisher" output.check
-      address output
+      format.publisher "publisher" output.check
+      format.address output
     }
     { new.block
       format.book.crossref output.nonnull
@@ -650,7 +686,7 @@ FUNCTION {booklet}
   format.title "title" output.check
   howpublished address new.block.checkb
   howpublished output
-  address output
+  format.address output
   format.date output
   new.block
   note output
@@ -678,8 +714,8 @@ FUNCTION {inbook}
       new.block
       format.number.series output
       new.sentence
-      publisher "publisher" output.check
-      address output
+      format.publisher "publisher" output.check
+      format.address output
     }
     { format.chapter.pages "chapter and pages" output.check
       new.block
@@ -707,8 +743,8 @@ FUNCTION {incollection}
       format.number.series output
       format.chapter.pages output
       new.sentence
-      publisher "publisher" output.check
-      address output
+      format.publisher "publisher" output.check
+      format.address output
       format.edition output
       format.date output
     }
@@ -737,14 +773,14 @@ FUNCTION {inproceedings}
       address empty$
         { organization publisher new.sentence.checkb
           organization output
-          publisher output
+          format.publisher output
           format.date output
         }
-        { address output.nonnull
+        { format.address output.nonnull
           format.date output
           new.sentence
           organization output
-          publisher output
+          format.publisher output
         }
       if$
     }
@@ -765,7 +801,7 @@ FUNCTION {manual}
     { organization empty$
         'skip$
         { organization output.nonnull
-          address output
+          format.address output
         }
       if$
     }
@@ -778,14 +814,14 @@ FUNCTION {manual}
   author empty$
     { organization empty$
         { address new.block.checka
-          address output
+          format.address output
         }
         'skip$
       if$
     }
     { organization address new.block.checkb
       organization output
-      address output
+      format.address output
     }
   if$
   format.edition output
@@ -805,7 +841,7 @@ FUNCTION {mastersthesis}
   new.block
   "Master's thesis" format.thesis.type output.nonnull
   school "school" output.check
-  address output
+  format.address output
   format.date output
   new.block
   note output
@@ -839,7 +875,7 @@ FUNCTION {phdthesis}
   new.block
   "{Ph.D.} thesis" format.thesis.type output.nonnull
   school "school" output.check
-  address output
+  format.address output
   format.date output
   new.block
   note output
@@ -860,22 +896,22 @@ FUNCTION {proceedings}
   format.number.series output
   address empty$
     { editor empty$
-        { publisher new.sentence.checka }
+        { format.publisher new.sentence.checka }
         { organization publisher new.sentence.checkb
           organization output
         }
       if$
-      publisher output
+      format.publisher output
       format.date output
     }
-    { address output.nonnull
+    { format.address output.nonnull
       format.date output
       new.sentence
       editor empty$
         'skip$
         { organization output }
       if$
-      publisher output
+      format.publisher output
     }
   if$
   new.block
@@ -893,7 +929,7 @@ FUNCTION {techreport}
   new.block
   format.tr.number output.nonnull
   institution "institution" output.check
-  address output
+  format.address output
   format.date output
   new.block
   note output
