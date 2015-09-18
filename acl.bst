@@ -68,6 +68,7 @@ ENTRY
 
 INTEGERS { output.state before.all mid.sentence after.sentence after.block }
 
+% set the constants to literal integer values (I think)
 FUNCTION {init.state.consts}
 { #0 'before.all :=
   #1 'mid.sentence :=
@@ -83,8 +84,9 @@ FUNCTION {output.nonnull}
     { ", " * write$ }
     { output.state after.block =
         { add.period$ write$
-          newline$
-          "\newblock " write$
+          % instead of a newline and \newblock command, use a single space and
+          % continue onto the next thing directly
+          " " write$
         }
         { output.state before.all =
             'write$
@@ -116,13 +118,6 @@ FUNCTION {output.check}
 FUNCTION {output.bibitem}
 { newline$
 
-  "\bibitem[" write$
-  label write$
-  "]{" write$
-
-  cite$ write$
-  "}" write$
-  newline$
   ""
   before.all 'output.state :=
 }
@@ -133,6 +128,7 @@ FUNCTION {fin.entry}
   newline$
 }
 
+% if output.state is "before.all", do nothing; otherwise, set output.state to "after.block"
 FUNCTION {new.block}
 { output.state before.all =
     'skip$
@@ -211,7 +207,7 @@ FUNCTION {field.or.null}
 FUNCTION {emphasize}
 { duplicate$ empty$
     { pop$ "" }
-    { "{\em " swap$ * "}" * }
+    { }
   if$
 }
 
@@ -514,7 +510,7 @@ FUNCTION {format.article.crossref}
           warning$
           ""
         }
-        { "In {\em " journal * "\/}" * }
+        { "In " journal * }
       if$
     }
     { "In " key * }
@@ -557,7 +553,7 @@ FUNCTION {format.book.crossref}
               crossref * warning$
               "" *
             }
-            { "{\em " * series * "\/}" * }
+            { " " * series * }
           if$
         }
         { key * }
@@ -578,7 +574,7 @@ FUNCTION {format.incoll.inproc.crossref}
               crossref * warning$
               ""
             }
-            { "In {\em " booktitle * "\/}" * }
+            { "In " booktitle * }
           if$
         }
         { "In " key * }
@@ -1316,8 +1312,6 @@ FUNCTION {begin.bib}
 
 }
 
-EXECUTE {begin.bib}
-
 EXECUTE {init.state.consts}
 
 ITERATE {call.type$}
@@ -1326,6 +1320,4 @@ FUNCTION {end.bib}
 { newline$
   "\end{thebibliography}" write$ newline$
 }
-
-EXECUTE {end.bib}
 
