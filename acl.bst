@@ -411,6 +411,11 @@ FUNCTION {format.edition}
   "edition" wrap.or.null
 }
 
+FUNCTION {format.note}
+{ note field.or.null
+  "note" wrap.or.null
+}
+
 INTEGERS { multiresult }
 
 FUNCTION {multi.page.check}
@@ -639,7 +644,7 @@ FUNCTION {article}
     }
   if$
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -673,7 +678,7 @@ FUNCTION {book}
   format.edition output
   format.date output
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -689,7 +694,7 @@ FUNCTION {booklet}
   format.address output
   format.date output
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -725,7 +730,7 @@ FUNCTION {inbook}
   format.edition output
   format.date output
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -753,7 +758,7 @@ FUNCTION {incollection}
     }
   if$
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -789,7 +794,7 @@ FUNCTION {inproceedings}
     }
   if$
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -827,7 +832,7 @@ FUNCTION {manual}
   format.edition output
   format.date output
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -844,7 +849,7 @@ FUNCTION {mastersthesis}
   format.address output
   format.date output
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -860,7 +865,7 @@ FUNCTION {misc}
   howpublished output
   format.date output
   new.block
-  note output
+  format.note output
   fin.entry
   empty.misc.check
 }
@@ -878,7 +883,7 @@ FUNCTION {phdthesis}
   format.address output
   format.date output
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -915,7 +920,7 @@ FUNCTION {proceedings}
     }
   if$
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
@@ -932,7 +937,7 @@ FUNCTION {techreport}
   format.address output
   format.date output
   new.block
-  note output
+  format.note output
   fin.entry
 }
 
